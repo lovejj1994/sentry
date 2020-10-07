@@ -1,94 +1,67 @@
 import React from 'react';
-import PropTypes from 'prop-types';
+import styled from '@emotion/styled';
 
 import {t} from 'app/locale';
-import {Meta, Frame} from 'app/types';
+import {Frame} from 'app/types';
 import {getMeta} from 'app/components/events/meta/metaProxy';
 import AnnotatedText from 'app/components/events/meta/annotatedText';
+import space from 'app/styles/space';
 
 type Props = {
   frame: Frame;
+  hasHiddenDetails?: boolean;
+  showCompleteFunctionName?: boolean;
   className?: string;
 };
 
-type State = {
-  rawFunction: boolean;
-};
-
-type ToggleValueOutput =
-  | string
-  | {
-      value: string;
-      meta?: Meta;
-    };
-
-class FunctionName extends React.Component<Props, State> {
-  static propTypes = {
-    frame: PropTypes.object,
-  };
-
-  state = {
-    rawFunction: false,
-  };
-
-  toggle = (event: React.MouseEvent<HTMLAnchorElement>) => {
-    event.stopPropagation();
-    this.setState(({rawFunction}) => ({rawFunction: !rawFunction}));
-  };
-
-  getToggleValue(withRawFunctionCondition: boolean = false): React.ReactNode {
-    const {frame} = this.props;
-    let valueOutput: ToggleValueOutput = t('<unknown>');
-
-    if (withRawFunctionCondition) {
-      const {rawFunction} = this.state;
-      if (!rawFunction) {
-        if (frame.function) {
-          valueOutput = {
-            value: frame.function,
-            meta: getMeta(frame, 'function'),
-          };
-        }
-      }
-    } else {
-      if (frame.function) {
-        valueOutput = {
-          value: frame.function,
-          meta: getMeta(frame, 'function'),
-        };
-      }
-    }
-
-    if (typeof valueOutput === 'string' && frame.rawFunction) {
-      valueOutput = {
+const FunctionName = ({
+  frame,
+  showCompleteFunctionName,
+  hasHiddenDetails,
+  className,
+}: Props) => {
+  const getValueOutput = ():
+    | {value: Frame['function']; meta: ReturnType<typeof getMeta>}
+    | undefined => {
+    if (hasHiddenDetails && showCompleteFunctionName && frame.rawFunction) {
+      return {
         value: frame.rawFunction,
         meta: getMeta(frame, 'rawFunction'),
       };
     }
 
-    if (typeof valueOutput === 'string') {
-      return valueOutput;
+    if (frame.function) {
+      return {
+        value: frame.function,
+        meta: getMeta(frame, 'function'),
+      };
     }
 
-    return <AnnotatedText value={valueOutput.value} meta={valueOutput.meta} />;
-  }
-
-  render() {
-    const {frame, ...props} = this.props;
-    const func = frame.function;
-    const rawFunc = frame.rawFunction;
-    const canToggle = rawFunc && func && func !== rawFunc;
-
-    if (!canToggle) {
-      return <code {...props}>{this.getToggleValue()}</code>;
+    if (frame.rawFunction) {
+      return {
+        value: frame.rawFunction,
+        meta: getMeta(frame, 'rawFunction'),
+      };
     }
-    const title = this.state.rawFunction ? undefined : rawFunc;
-    return (
-      <code {...props} title={title} onClick={this.toggle}>
-        {this.getToggleValue(true)}
-      </code>
-    );
-  }
-}
+
+    return undefined;
+  };
+
+  const valueOutput = getValueOutput();
+
+  return (
+    <StyledCode className={className}>
+      {!valueOutput ? (
+        t('<unknown>')
+      ) : (
+        <AnnotatedText value={valueOutput.value} meta={valueOutput.meta} />
+      )}
+    </StyledCode>
+  );
+};
 
 export default FunctionName;
+
+const StyledCode = styled('code')`
+  margin-right: ${space(0.75)};
+`;
