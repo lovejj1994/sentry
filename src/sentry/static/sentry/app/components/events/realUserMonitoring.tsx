@@ -14,15 +14,11 @@ import {WEB_VITAL_DETAILS} from 'app/views/performance/realUserMonitoring/consta
 import {Vital} from 'app/views/performance/realUserMonitoring/types';
 
 // translate known short form names into their long forms
-const LONG_MEASUREMENT_NAMES = {
-  fid: 'First Input Delay',
-  fp: 'First Paint',
-  fcp: 'First Contentful Paint',
-  lcp: 'Largest Contentful Paint',
-  cls: 'Cumulative Layout Shift',
-  ttfb: 'Time to First Byte',
-  'ttfb.requesttime': 'Request Time',
-};
+const LONG_MEASUREMENT_NAMES = Object.fromEntries(
+  Object.entries(WEB_VITAL_DETAILS).map(([, value]) => {
+    return [value.slug, value.name];
+  })
+);
 
 type Props = {
   organization: Organization;
