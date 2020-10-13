@@ -11,6 +11,7 @@ import space from 'app/styles/space';
 import Tooltip from 'app/components/tooltip';
 import {IconFire} from 'app/icons';
 import {WEB_VITAL_DETAILS} from 'app/views/performance/realUserMonitoring/constants';
+import {Vital} from 'app/views/performance/realUserMonitoring/types';
 
 // translate known short form names into their long forms
 const LONG_MEASUREMENT_NAMES = {
@@ -59,6 +60,9 @@ class RealUserMonitoring extends React.Component<Props> {
 
       const failedThreshold = record ? value >= record.failureThreshold : false;
 
+      const currentValue = prettyValue(record, value);
+      const thresholdValue = prettyValue(record, record?.failureThreshold ?? 0);
+
       return (
         <div key={name}>
           <StyledPanel failedThreshold={failedThreshold}>
@@ -67,10 +71,7 @@ class RealUserMonitoring extends React.Component<Props> {
               {failedThreshold ? (
                 <WarningIconContainer size="sm">
                   <Tooltip
-                    title={`${getDuration(value / 1000, 3)} >= ${getDuration(
-                      record!.failureThreshold / 1000,
-                      3
-                    )}`}
+                    title={`${currentValue} >= ${thresholdValue}`}
                     position="top"
                     containerDisplayMode="inline-block"
                   >
@@ -78,9 +79,7 @@ class RealUserMonitoring extends React.Component<Props> {
                   </Tooltip>
                 </WarningIconContainer>
               ) : null}
-              <Value failedThreshold={failedThreshold}>
-                {getDuration(value / 1000, 3)}
-              </Value>
+              <Value failedThreshold={failedThreshold}>{currentValue}</Value>
             </ValueRow>
           </StyledPanel>
         </div>
@@ -157,5 +156,13 @@ const Value = styled('span')<{failedThreshold: boolean}>`
     `;
   }};
 `;
+
+function prettyValue(record: Vital | undefined, value: number): string {
+  if (record && record.type === 'duration') {
+    return getDuration(value / 1000, 3);
+  }
+
+  return value.toFixed(3);
+}
 
 export default RealUserMonitoring;

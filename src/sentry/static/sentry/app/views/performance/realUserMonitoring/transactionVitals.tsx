@@ -23,7 +23,12 @@ type Props = {
 class TransactionVitals extends React.Component<Props> {
   render() {
     const {location, organization, eventView, dataFilter} = this.props;
-    const vitals = Object.values(WebVital);
+
+    const vitals: WebVital[] = Object.entries(WEB_VITAL_DETAILS)
+      .filter(([, value]) => value.display)
+      .map(([key]) => {
+        return key as WebVital;
+      });
 
     const colors = [...theme.charts.getColorPalette(vitals.length - 1)].reverse();
 

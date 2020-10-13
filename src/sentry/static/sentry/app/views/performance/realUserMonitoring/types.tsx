@@ -11,6 +11,7 @@ export type Vital = {
   description: string;
   failureThreshold: number;
   type: ColumnType;
+  display: boolean;
 };
 
 export type Point = {
