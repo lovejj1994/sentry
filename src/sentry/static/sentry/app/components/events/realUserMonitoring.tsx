@@ -18,6 +18,9 @@ const LONG_MEASUREMENT_NAMES = {
   fp: 'First Paint',
   fcp: 'First Contentful Paint',
   lcp: 'Largest Contentful Paint',
+  cls: 'Cumulative Layout Shift',
+  ttfb: 'Time to First Byte',
+  'ttfb.requesttime': 'Request Time',
 };
 
 type Props = {
